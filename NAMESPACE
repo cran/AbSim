@@ -1,0 +1,6 @@
+exportPattern("^[^\\.]")
+export(singleLineage)
+export(fullRepertoire)
+export(clonalExpansion)
+import(ape)
+import(poweRlaw)

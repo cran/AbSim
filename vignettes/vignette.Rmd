@@ -1,0 +1,205 @@
+---
+title: "AbSim vignette"
+author: "Alexander Yermanos"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AbSim vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## 1. Introduction
+
+AbSim is a tool for simulating the evolution of B-cell repertoires. The heavy chain variable region of both human and C57BL/6 mice can be simulated in a time-dependent fashion. Both single lineages using one set of V-, D-, and J-genes or full repertoires can be simulated. The algorithm begins with an initial VDJ recombination event, starting the first phylogenetic tree. Upon completion, the main loop of the algorithm begins, with each iteration representing one simulated time step. Currently, each time step holds three possible events that can either diversify or expand the repertoire: VDJ recombination, somatic hypermutation (SHM), or baseline mutations (sequence death will be added in future versions). 
+
+The output of the simulation provides information regarding the sequence composition and the topology of the lineage trees. All sequences are held in the first element of the output list, whereas the corresponding names are held in the second element of the output list. This repertoire can be further expanded by assigning frequencies to each sequence. Additionally, sequences can be sampled at intermediate time points to provide a snapshot of the repertoire in its current state. While the examples focus heavily on phylogenetics, AbSim can be used for a variety of other purposes, from validating error correction methods to testing alignment accuracy. One of the major benefits of AbSim is that the user can control many biologically relevant parameters that are needed to simulate the complex nature of antibody repertoires. This includes size of the repertoire, the number of mutations per branching event, the length of the simulation, the types of somatic hypermutation (SHM), and  more. Several examples of both single lineages and full repertoires are displayed below. 
+
+
+## 2. Single lineages
+
+Sometimes it may be desirable to include multiple VDJ events and somatic hypermutation (SHM) events in a single lineage. The singleLineage function allows for branching events to arise from both VDJ recombination and SHM events. This simulation begins with only one set of unmutated germline sequences, which will be used to produce a first VDJ recombination event. The lineage tree begins with one internal node connecting the unmutated germline sequence and the VDJ-recombined sequence. At each time step, there is a possibility for branching events in the form of VDJ recombination (only the unmutated germline can do this) or SHM (all non-germline sequences can undergo this). 
+
+While this function draws heavily from the fullRepertoire function (see Section 3), the main difference is that multiple VDJ events can occur within a single tree (determined by the max.VDJ parameter). These VDJ recombinations result in a branching event at the unmutated germline tip. In the full repertoire, VDJ recombination events exclusively start a new tree. An example set of parameters one could call is shown below. The following code randomly selects one set of V-, D-, and J-segments from the C57BL/6 mouse and use only these germline genes to generate the phylogeny. Three independent VDJ recombination events will occur, each of which cause the germline to undergo a branching event. 
+
+```{r, fig.show='hold'}
+single.lineage.test <- AbSim::singleLineage(max.seq.num=20,max.timer=150,SHM.method="naive",baseline.mut = 0.0008,SHM.branch.prob = "identical", SHM.branch.param = 0.05, SHM.nuc.prob = 15/350,species="mus", max.VDJ = 3, VDJ.branch.prob = 0.3,proportion.sampled = 1,sample.time = 30)
+```
+
+### 2.1. Single lineage sequences
+
+The simulated nucleotide sequences are held in the first element of the output list. In the case of the function singleLineage, there is only one tree, however, when using fullRepertoire function, the other sequence arrays would be stored as subsequent elements in the list (e.g.,, single.lineage.test[[1]][[2]] holds the character array corresponding to the sequence names of the second tree). The first element of the character array (i.e. single.lineage.test[[1]][[1]][1]) is the germline sequence with the V-, D-, and J-genes simply appended to another. The following indices correspond to the other simulated sequences (e.g.,, single.lineage.test[[1]][[1]][2], single.test.lineage[[1]][[1]][3],..). The first element of all nested-list of both single.lineage.test[[1]] and of single.lineage.test[[2]] will always correspond to the germline genes.
+
+
+```{r, fig.show='hold'}
+head(substring(single.lineage.test[[1]][[1]],first=1,last=20))
+
+# Note that these sequences are just showing the first 20 nucleotides (although the full nucleotide sequence is much longer)
+
+```
+
+
+### 2.2 Single lineage names
+
+The names of the corresponding sequences are held in the second list element. The names provide information regarding which V-, D-, and J-genes were used to start the given lineage, the simulated time step at which the sequence was generated, and how many sequences were already present in the simulation. The names are in the form of a letter, either S or L, corresponding to how the sequence was generated - ("L"=lineage generated by VDJ event or "S"=SHM event). e.g., sequence named "S3_20" indicates that the third sequence of the simulation was generated at the 20th time step through SHM. These sequence names can be subsequently paired with the corresponding sequences as needed (e.g., writing into a fasta file).
+
+```{r, fig.show='hold'}
+
+head(single.lineage.test[[2]][[1]])
+
+# Thus, the sequences and the names can be paired by looking at the corresponding elements in the nested list. E.G single.lineage.test[[1]][[1]][1] corresponds to the sequence of single.lineage.test[[2]][[1]][1]. (In this case it represents the germline)
+
+
+single.lineage.test[[2]][[1]][3] 
+
+```
+
+### 2.3 Single lineage trees
+
+The tree ("phylo" class from R package ape) is held in the third element of the list. In the case of the function singleLineage, there is only one tree, however, when using fullRepertoire function, the other list elements would be stored as the single.lineage.test[[3]][[2]], single.lineage.test[[3]][[3]], etc.
+
+We can plot the trees to see the true phylogeny that was used to generate the lineage/repertoire. 
+```{r, fig.show='hold'}
+
+plot(single.lineage.test[[3]][[1]],cex=.5)
+title(single.lineage.test[[2]][[1]][1])
+
+
+```
+
+### 2.4 Single lineage sampling 
+
+The sequences can be sampled during the simulation at any specified time point. As seen previously, the sequences, names, and trees are found in the first three elements of the output list (Sections 2.1-2.3). The subsequent list elements are used to store the sequences and corresponding names at each of the sample points. The output for intermediate sampling should make more sense when reading about how full repertoires are simulated (Section 3). The user can specify the desired number of sampling points in the sample.time argument (if an array is given, multiple sample points will be used). A warning, if the sample point occurs after the simulation is finished (e.g., the number of sequences is reached before the sampling time point, the sequences will not be recovered). Thus, some manual inspection/calculations with the parameter sets should be looked at before determining the sampling time points. The sequences from the first sample point are held in the fourth element of the output list (e.g., single.lineage.test[[4]] holds the sequences for the first lineage (the only lineage in case of singleLineage function)), and single.lineage.test[[5]] holds the names for this tree. The first sequence of each character array is always the unmutated V-, D-, and J- germline elements (e.g., single.lineag.test[[4]][1] and single.lineag.test[[5]][1] correspond to the unmutated germline sequence and the name of the sequence). If multiple time points are added, they are stored in the subsequent list elements. e.g., the sequences of the second time points would be held at single.lineage.test[[6]], with the corresponding names held at single.lineage.test[[7]]. This storage strategy was designed for the full repertoire, where there are many trees per time step that need to be sampled. 
+
+```{r, fig.show='hold'}
+
+
+head(substring(single.lineage.test[[4]],first=1,last=20)) # Shows the sequences of the first sampling time point
+head(single.lineage.test[[5]]) # Names corresponding to above sequences at same time point
+
+
+
+```
+
+## 3. Full Repertoires
+
+The function fullRepertoire is used to simulate the base diversity of full antibody repertoires. The output of the simulation is very similar to that of singleLineage except the list objects will be longer. The subsequent elements in the internal nodes correspond to the multiple trees that compose the repertoire. In the function call below, the repertoire will be composed of three VDJ events, specified by the max.tree.num parameter. The sequences specified by max.seq.num will be dispersed throughout the three trees (thus, each tree will not have 25 sequences, but the sum of the tips will add up to 25 from all trees (not including germline sequences)). 
+
+```{r, fig.show='hold'}
+
+full.repertoire.test <- AbSim::fullRepertoire(max.seq.num=30, max.timer=150, SHM.method="naive", baseline.mut = 0.0008, SHM.branch.prob = "identical", SHM.branch.param = 0.1, SHM.nuc.prob = 15/350, species="mus", VDJ.branch.prob = 0.8, proportion.sampled = 1, sample.time = 15,max.tree.num = 3)
+
+
+```
+
+### 3.1 Full repertoire sequences
+
+The output of the sequences are stored in the first list element, as similar to the singleLineage (section 2.1). However, now the nested list will have as many elements as there are trees. Thus, the sequences corresponding to the first tree are in full.repertoire.test[[1]][[1]], and the sequences for the second tree are held in full.repertoire.test[[1]][[2]]. As always, the first sequence in the array is the unmutated germline sequence.
+
+```{r, fig.show='hold'}
+head(substring(full.repertoire.test[[1]][[1]],first=1,last=20)) # Sequences corresponding to first tree
+
+head(substring(full.repertoire.test[[1]][[2]],first=1,last=20)) # Sequences corresponding to second tree
+
+# Note that these sequences are just showing the first 20 nucleotides (although the full nucleotide sequence is much longer)
+
+```
+
+### 3.2 Full repertoire names
+
+The names are again stored in the second element of the outer list, with each internal element corresponding to a tree. full.repertoire.test[[2]][[1]] corresponds to the names for the first tree. This character array matches the sequences from full.repertoire.test[[1]][[1]]. 
+
+e.g., full.repertoire.test[[1]][[1]][2] corresponds to the second sequence of the first tree - whose name is stored full.repertoire.test[[2]][[1]][2]. 
+
+full.repertoire.test[[1]][[3]][3] corresponds to the third sequence of the third tree - whose name is stored in full.repertoire.test[[2]][[3]][3]. The tree containing this sequence can be found at full.repertoire.test[[3]][[3]].
+
+```{r, fig.show='hold'}
+head(full.repertoire.test[[2]][[1]]) # The names corresponding to sequences found in the first tree 
+
+head(full.repertoire.test[[2]][[2]]) # The names corresponding to the sequences found in the second tree
+
+# The tree containing the sequences/names would be full.repertoire.test[[3]][[1]] and full.repertoire.test[[3]][[2]], respectively
+
+
+```
+
+### 3.3 Full repertoire trees
+
+The trees for the repertoire are stored in the third element of the outer list. The length of this element (full.repertoire.test[[3]]) is determined by how many trees are produced during the simulation (depending on both the VDJ.branch.prob and the max.tree.num parameters) will be as many trees as produced during the simulation. 
+
+```{r, fig.show='hold'}
+
+plot(full.repertoire.test[[3]][[1]],cex=.5) # This shows the first simulated tree
+title(full.repertoire.test[[2]][[2]][1]) # makes the germline sequence name the title
+
+plot(full.repertoire.test[[3]][[2]],cex=.5) # This shows the second simulated tree
+title(full.repertoire.test[[2]][[2]][1])
+
+plot(full.repertoire.test[[3]][[3]],cex=.5) # This shows the third simulated tree
+title(full.repertoire.test[[2]][[2]][1])
+# Other phylogenetic tree properties (e.g., tip names) can be accessed by:
+head(full.repertoire.test[[3]][[1]]$tip.label)
+
+```
+
+### 3.4 Full repertoire sampling
+
+The sequences at any given time point can be sampled by the user for all current trees. The user can specify the desired number of sampling points in the sample.time argument (if an array is given, multiple sample points will be used). As a note of caution, if the sample point occurs after the simulation is finished (e.g., the number of sequences is reached before the sampling time point, the sequences will not be recovered). Thus, some manual inspection/calculations with the parameter sets may be needed before determining the sampling time points. The sequences from the first sample point are held in the fourth element of the output list (e.g., full.repertoire.test[[4]][[1]] holds the sequences for the first lineage (the only lineage in case of singleLineage function)), and single.lineage.test[[5]][[1]] holds the names for this tree. The first sequence of each character array is always the unmutated V-, D-, and J- germline elements (e.g., full.repertoire.test[[4]][[1]][1] and full.repertoire.test[[5]][[1]][1] correspond to the unmutated germline sequence and the name of the sequence). In this following example, the proportion.sampled parameter was set to 1, thus all of the sequences at each time point are sampled. Supplying 0.5 for the parameter means that half of the sequences at each time point would be sampled.
+
+The sequences from subsequent trees are stored in the same outer list as the previously described sequences, but correspond to a different index in the internal list. Thus the sequences of the second tree corresponding to the first sampling event will be held in full.repertoire.test[[4]][[2]], corresponding to the tree full.repertoire.test[[3]][[2]]. 
+
+```{r, fig.show='hold'}
+
+
+head(substring(full.repertoire.test[[4]][[2]],first=1,last=20)) # intermediate sequences at time point 20 for the second tree
+
+head(full.repertoire.test[[5]][[2]]) # names of the intermediate sequences at time point 20  
+
+```
+
+
+If multiple time points are added, they are stored in the subsequent list elements. e.g., the sequences of the second time points would be held at single.lineage.test[[6]][[1]], with the corresponding names held at single.lineage.test[[7]][[1]]. This continues throughout the first list, alternating sequences and names. Thus the ith sampling point will have its sequences at full.repertoire.test[[2i+2]] and the names will be at full.repertoire.test[[2i+3]]. Thus the name of the third sequence (full.repertoire.test[[2i+3]][3] and the third sequence (full.repertoire.test[[2i+2]] correspond to each other). The tips of the trees also provide the sample names, however, the intermediate trees are not sampled - This can be deduced by look at the where the names are in the final tree.
+
+
+## 4. Clonal expansion
+
+The fullRepertoire function creates a repertoire but ignores sequence frequency (i.e., how often a sequence is seen). The clonalExpansion function serves to automate the expansion of the repertoire by taking the output from fullRepertoire and assigning frequencies to each sequence. The output list will be three elements long - the first list element corresponds to the sequences, the second to the names, and the third to the trees. The sampled sequences and names are not included in the output of this function but can still be accessed with the input antibody repertoire.  The sequence and the name that correspond to each other always share the same index in their respective arrays. Currently, the repertoire can either be expanded at equal frequencies for all sequences or by the power law (other distributions will be added with subsequent updates).
+
+```{r, fig.show='hold'}
+
+# full.repertoire.test has 30 sequences to start. Will expand the repertoire by 3 with the following function
+expanded.test <- AbSim::clonalExpansion(ab.repertoire = full.repertoire.test,
+                                        rep.size = 90,
+                                        distribution = "id",
+                                        with.germline = FALSE)
+length(expanded.test[[1]]) # expected 90 sequences
+
+```
+
+This function could be particularly useful for testing error correction methods. The sequences could be mutated by the user and the frequency/clonotypes could be examined, while knowing the exact frequency and number of VDJ lineages present in the repertoire. 
+
+
+## 5. Other examples
+
+### 5.1 Extracting final sequences
+
+The sequences of the final repertoire can be extracted and compiled into one array by using the following code: >substring(unlist(full.repertoire.test[[1]]),first=1,last=20)
+```{r, fig.show='hold'}
+
+only.sequences <- unlist(full.repertoire.test[[1]])
+head(substring(only.sequences,first=1,last=20))
+# shows the first 20 nucleotides of each sequence composing the repertoire (no frequencies yet, see clonal expansion)
+print(single.lineage.test[[3]][[1]]$tip.label[1]) # extracts the germline V,D,J genes used
+
+```
+
+
+### 5.2 Removing germline tip from tree
+One may be interested in removing the germline from the phylogenetic tree, e.g., when using the output sequences for phylogenetic reconstruction to compare to the simulated topolgy. This can be easily accomplished by removing the root sequence in the phylogenetic tree using ape's drop.tip function. By default, the first tip of every tree is will be the unmutated germline. 
+
+```{r, fig.show='hold'}
+
+tree.without.germline <- ape::drop.tip(single.lineage.test[[3]][[1]],tip=1)
+
+```
+
