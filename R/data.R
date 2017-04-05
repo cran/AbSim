@@ -1,6 +1,6 @@
-#' blc6_v_df
+#' ighv_mus_df
 #'
-#' C57BL/6 germline v-gene segments. When multiple alleles were present, the
+#' C57BL/6 germline IgH-V (heavy chain v-gene segments). When multiple alleles were present, the
 #' first one was included. These names and sequences can be changed by
 #' customized by changing this dataframe. Additionally, repeating elements
 #' can give certain germline gene elements a larger probability of being used
@@ -12,11 +12,11 @@
 #'   \item{seq}{The corresponding sequence}
 #' }
 #' @source IMGT
-"blc6_v_df"
+"ighv_mus_df"
 
-#' blc6_d_df
+#' ighd_mus_df
 #'
-#' C57BL/6 germline d-gene segments. When multiple alleles were present, the
+#' C57BL/6 germline IgH-D (heavy chain d-gene segments). When multiple alleles were present, the
 #' first one was included. These names and sequences can be changed by
 #' customized by changing this dataframe. Additionally, repeating elements
 #' can give certain germline gene elements a larger probability of being used
@@ -28,11 +28,11 @@
 #'   \item{seq}{The corresponding sequence}
 #' }
 #' @source IMGT
-"blc6_d_df"
+"ighd_mus_df"
 
-#' blc6_j_df
+#' ighj_mus_df
 #'
-#' C57BL/6 germline j-gene segments. When multiple alleles were present, the
+#' C57BL/6 germline IgH-J (heavy chain j-gene segments). When multiple alleles were present, the
 #' first one was included. These names and sequences can be changed by
 #' customized by changing this dataframe. Additionally, repeating elements
 #' can give certain germline gene elements a larger probability of being used
@@ -44,11 +44,11 @@
 #'   \item{seq}{The corresponding sequence}
 #' }
 #' @source IMGT
-"blc6_j_df"
+"ighj_mus_df"
 
-#' hum_v_df
+#' ighv_hum_df
 #'
-#' human germline v gene segments. When multiple alleles were present, the
+#' human germline IgH-V (heavy chain v gene segments). When multiple alleles were present, the
 #' first one was included. These names and sequences can be changed by
 #' customized by changing this dataframe. Additionally, repeating elements
 #' can give certain germline gene elements a larger probability of being used
@@ -60,12 +60,12 @@
 #'   \item{seq}{The corresponding sequence}
 #' }
 #' @source IMGT
-"hum_v_df"
+"ighv_hum_df"
 
 
-#' hum_d_df
+#' ighd_hum_df
 #'
-#' human germline v gene segments. When multiple alleles were present, the
+#' human germline IgH-D (heavy chain d-gene segments). When multiple alleles were present, the
 #' first one was included. These names and sequences can be changed by
 #' customized by changing this dataframe. Additionally, repeating elements
 #' can give certain germline gene elements a larger probability of being used
@@ -77,12 +77,12 @@
 #'   \item{seq}{The corresponding sequence}
 #' }
 #' @source IMGT
-"hum_d_df"
+"ighd_hum_df"
 
 
-#' hum_j_df
+#' ighj_hum_df
 #'
-#' human germline v gene segments. When multiple alleles were present, the
+#' human germline IgH-V (heavy chain v-gene segments). When multiple alleles were present, the
 #' first one was included. These names and sequences can be changed by
 #' customized by changing this dataframe. Additionally, repeating elements
 #' can give certain germline gene elements a larger probability of being used
@@ -94,7 +94,146 @@
 #'   \item{seq}{The corresponding sequence}
 #' }
 #' @source IMGT
-"hum_j_df"
+"ighj_hum_df"
+
+
+#' igkv_hum_df
+#'
+#' human germline IgK-V (light chain kappa v-gene segments). When multiple alleles were present, the
+#' first one was included. These names and sequences can be changed by
+#' customized by changing this dataframe. Additionally, repeating elements
+#' can give certain germline gene elements a larger probability of being used
+#' during repertoire evolution.
+#'
+#' @format A data frame with 6 rows and 10 variables:
+#' \describe{
+#'   \item{gene}{The gene name}
+#'   \item{seq}{The corresponding sequence}
+#' }
+#' @source IMGT
+"igkv_hum_df"
+
+
+
+#' igkj_hum_df
+#'
+#' human germline IgK-J (light chain kappa j-gene segments). When multiple alleles were present, the
+#' first one was included. These names and sequences can be changed by
+#' customized by changing this dataframe. Additionally, repeating elements
+#' can give certain germline gene elements a larger probability of being used
+#' during repertoire evolution.
+#'
+#' @format A data frame with 6 rows and 10 variables:
+#' \describe{
+#'   \item{gene}{The gene name}
+#'   \item{seq}{The corresponding sequence}
+#' }
+#' @source IMGT
+"igkj_hum_df"
+
+
+#' igkv_mus_df
+#'
+#' mouse germline IgK-V (light chain kappa V-gene segments). When multiple alleles were present, the
+#' first one was included. These names and sequences can be changed by
+#' customized by changing this dataframe. Additionally, repeating elements
+#' can give certain germline gene elements a larger probability of being used
+#' during repertoire evolution.
+#'
+#' @format A data frame with 6 rows and 10 variables:
+#' \describe{
+#'   \item{gene}{The gene name}
+#'   \item{seq}{The corresponding sequence}
+#' }
+#' @source IMGT
+"igkv_mus_df"
+
+
+#' igkj_mus_df
+#'
+#' mouse germline IgK-J (light chain kappa J-gene segments). When multiple alleles were present, the
+#' first one was included. These names and sequences can be changed by
+#' customized by changing this dataframe. Additionally, repeating elements
+#' can give certain germline gene elements a larger probability of being used
+#' during repertoire evolution.
+#'
+#' @format A data frame with 6 rows and 10 variables:
+#' \describe{
+#'   \item{gene}{The gene name}
+#'   \item{seq}{The corresponding sequence}
+#' }
+#' @source IMGT
+"igkj_mus_df"
+
+
+
+#' iglv_hum_df
+#'
+#' human germline IgL-V (light chain lambda v-gene segments). When multiple alleles were present, the
+#' first one was included. These names and sequences can be changed by
+#' customized by changing this dataframe. Additionally, repeating elements
+#' can give certain germline gene elements a larger probability of being used
+#' during repertoire evolution.
+#'
+#' @format A data frame with 6 rows and 10 variables:
+#' \describe{
+#'   \item{gene}{The gene name}
+#'   \item{seq}{The corresponding sequence}
+#' }
+#' @source IMGT
+"iglv_hum_df"
+
+
+
+#' iglj_hum_df
+#'
+#' human germline IgL-J (light chain lambda j-gene segments). When multiple alleles were present, the
+#' first one was included. These names and sequences can be changed by
+#' customized by changing this dataframe. Additionally, repeating elements
+#' can give certain germline gene elements a larger probability of being used
+#' during repertoire evolution.
+#'
+#' @format A data frame with 6 rows and 10 variables:
+#' \describe{
+#'   \item{gene}{The gene name}
+#'   \item{seq}{The corresponding sequence}
+#' }
+#' @source IMGT
+"iglj_hum_df"
+
+
+#' iglv_mus_df
+#'
+#' mouse germline IgL-V (light chain lambda V-gene segments). When multiple alleles were present, the
+#' first one was included. These names and sequences can be changed by
+#' customized by changing this dataframe. Additionally, repeating elements
+#' can give certain germline gene elements a larger probability of being used
+#' during repertoire evolution.
+#'
+#' @format A data frame with 6 rows and 10 variables:
+#' \describe{
+#'   \item{gene}{The gene name}
+#'   \item{seq}{The corresponding sequence}
+#' }
+#' @source IMGT
+"iglv_mus_df"
+
+
+#' iglj_mus_df
+#'
+#' mouse germline IgL-J (light chain lambda J-gene segments). When multiple alleles were present, the
+#' first one was included. These names and sequences can be changed by
+#' customized by changing this dataframe. Additionally, repeating elements
+#' can give certain germline gene elements a larger probability of being used
+#' during repertoire evolution.
+#'
+#' @format A data frame with 6 rows and 10 variables:
+#' \describe{
+#'   \item{gene}{The gene name}
+#'   \item{seq}{The corresponding sequence}
+#' }
+#' @source IMGT
+"iglj_mus_df"
 
 
 

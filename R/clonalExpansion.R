@@ -15,7 +15,7 @@
 #' is a character array with the names of the sequences, and the third element in the list
 #' corresponds to the original phylogenetic trees that served as the basis for expansion
 #' @param with.germline Logical - If false, the germline from each lineage will be removed.
-#' @param dist.parameters Supplies the parameters for how the repertoire should
+#' @param dist.parameters Supplies the parameters for how the clonal frequencies should
 #' be distributed.
 #' @seealso fullRepertoire
 #' @export

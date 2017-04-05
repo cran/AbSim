@@ -6,7 +6,8 @@
 \usage{
 fullRepertoire(max.seq.num, max.timer, SHM.method, baseline.mut,
   SHM.branch.prob, SHM.branch.param, SHM.nuc.prob, species, VDJ.branch.prob,
-  proportion.sampled, sample.time, max.tree.num)
+  proportion.sampled, sample.time, max.tree.num, chain.type, vdj.model,
+  vdj.insertion.mean, vdj.insertion.stdv)
 }
 \arguments{
 \item{max.seq.num}{The maximum number of tips allowed at the end of the simulation. The simulation
@@ -67,6 +68,27 @@ sequences.}
 \item{max.tree.num}{Integer value describing maximum number of trees allowed
 to generate the core sequences of the repertoire. Each of these trees is started
 by an independent VDJ recombination event.}
+
+\item{chain.type}{String determining whether heavy or light chain should
+be simulated. Either "heavy" for heavy chains or "light" for light
+chains. Heavy chains will have V-D-J recombination, whereas light chain
+will just have V-J recombination.}
+
+\item{vdj.model}{Specifies the model used to simulate V-D-J recombination. Can be
+either "naive" or "data". "naive" is chain independent and does not differentiate
+between different species. To rely on the default "experimental" options, this
+should be "data" and the parameter vdj.insertion.mean should be "default". This will
+allow for different mean additions for either the VD and JD junctions and will
+differ depending on species.}
+
+\item{vdj.insertion.mean}{Integer value describing the mean number of nucleotides to be inserted during
+simulated V-D-J recombination events. If "default" is entered, the mean will be normally distribut}
+
+\item{vdj.insertion.stdv}{Integer value describing the standard deviation corresponding to insertions
+of V-D-J recombination. No "default" parameter currently supported but will be updated
+with future experimental data. This should be a number if using a custom distribution
+for V-D-J recombination events, but can be "default" if using the "naive" vdj.model
+or the "data", with vdj.insertion.mean set to "default".}
 }
 \value{
 Returns a nested list. output[[1]][[1]] is an array of the simulated sequences
@@ -82,14 +104,6 @@ that served as the root of the tree. See vignette for comprehensive example
 }
 \description{
 Simulates full heavy chain antibody repertoires for either human or mice.
-}
-\examples{
-fullRepertoire(max.seq.num=51,max.timer=150,
- SHM.method="naive",baseline.mut = 0.0008,
- SHM.branch.prob = "identical", SHM.branch.param = 0.05,
- SHM.nuc.prob = 15/350,species="mus",
- VDJ.branch.prob = 0.1,proportion.sampled = 1,
- sample.time = 50,max.tree.num=3)
 }
 \seealso{
 singleLineage

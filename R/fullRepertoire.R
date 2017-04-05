@@ -16,12 +16,13 @@
 #' @export
 #' @seealso singleLineage
 #' @examples
-#' fullRepertoire(max.seq.num=51,max.timer=150,
-#'  SHM.method="naive",baseline.mut = 0.0008,
-#'  SHM.branch.prob = "identical", SHM.branch.param = 0.05,
-#'  SHM.nuc.prob = 15/350,species="mus",
-#'  VDJ.branch.prob = 0.1,proportion.sampled = 1,
-#'  sample.time = 50,max.tree.num=3)
+# fullRepertoire(max.seq.num=51,max.timer=150,
+#  SHM.method="naive",baseline.mut = 0.0008,
+#  SHM.branch.prob = "identical", SHM.branch.param = 0.05,
+#  SHM.nuc.prob = 15/350,species="mus",
+#  VDJ.branch.prob = 0.1,proportion.sampled = 1,
+#  sample.time = 50,max.tree.num=3, chain.type="heavy",vdj.model="naive",
+#  vdj.insertion.mean=4, vdj.insertion.stdv=2)
 
 fullRepertoire <- function(max.seq.num,
                           max.timer,
@@ -34,7 +35,11 @@ fullRepertoire <- function(max.seq.num,
                           VDJ.branch.prob,
                           proportion.sampled,
                           sample.time,
-                          max.tree.num
+                          max.tree.num,
+                          chain.type,
+                          vdj.model,
+                          vdj.insertion.mean,
+                          vdj.insertion.stdv
                           ){
   tree_list <- c()
   tree_list[1:max.tree.num] <- "(0,1)L;"
@@ -51,28 +56,84 @@ fullRepertoire <- function(max.seq.num,
   max.seq.num <- max.seq.num + 1
   output_list <- list()
   max_SHM <- max.seq.num - max.tree.num
-  if(species=="mus" || species=="mouse"){
-    indV <- sample(x = 1:nrow(blc6_v_df),size = 1,replace = FALSE)
-    indD <- sample(x = 1:nrow(blc6_d_df),size=1,replace=FALSE)
-    indJ <- sample(x = 1:nrow(blc6_j_df),size=1,replace=FALSE)
-    germline_name[1] <- paste(as.character(blc6_v_df[[1]][indV]),as.character(blc6_d_df[[1]][indD]),as.character(blc6_j_df[[1]][indJ]),sep="")
-    germline_vseq[1] <- as.character(blc6_v_df[[2]][indV])
-    germline_dseq[1] <- as.character(blc6_d_df[[2]][indD])
-    germline_jseq[1] <- as.character(blc6_j_df[[2]][indJ])
-    germline_seq[1] <- paste(as.character(blc6_v_df[[2]][indV]),as.character(blc6_d_df[[2]][indD]),as.character(blc6_j_df[[2]][indJ]),sep="")
-    seq_list[[1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(blc6_v_df[[2]][indV]), as.character(blc6_d_df[[2]][indD]),as.character(blc6_j_df[[2]][indJ]),"naive"))
+  if(species=="mus" || species=="mouse" || species=="blc6" && chain.type=="heavy"){
+    indV <- sample(x = 1:nrow(ighv_mus_df),size = 1,replace = FALSE)
+    indD <- sample(x = 1:nrow(ighd_mus_df),size=1,replace=FALSE)
+    indJ <- sample(x = 1:nrow(ighj_mus_df),size=1,replace=FALSE)
+    germline_name[1] <- paste(as.character(ighv_mus_df[[1]][indV]),as.character(ighd_mus_df[[1]][indD]),as.character(ighj_mus_df[[1]][indJ]),sep="")
+    germline_vseq[1] <- as.character(ighv_mus_df[[2]][indV])
+    germline_dseq[1] <- as.character(ighd_mus_df[[2]][indD])
+    germline_jseq[1] <- as.character(ighj_mus_df[[2]][indJ])
+    germline_seq[1] <- paste(as.character(ighv_mus_df[[2]][indV]),as.character(ighd_mus_df[[2]][indD]),as.character(ighj_mus_df[[2]][indJ]),sep="")
+    seq_list[[1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(ighv_mus_df[[2]][indV]), as.character(ighd_mus_df[[2]][indD]),as.character(ighj_mus_df[[2]][indJ]),
+                                                         method=vdj.model,
+                                                         chain.type=chain.type,
+                                                         species=species,
+                                                         vdj.insertion.mean=vdj.insertion.mean,
+                                                         vdj.insertion.stdv=vdj.insertion.stdv))
+    name_list[[1]] <- paste(paste("S","1", sep=""),1,sep="_")
+#     indV <- sample(x = 1:nrow(igkv_mus_df),size = 1,replace = FALSE)
+#     indD <- sample(x = 1:nrow(ighd_mus_df),size=1,replace=FA)
+#     indJ <- sample(x = 1:nrow(ighj_mus_df),size=1,replace=TRUE)
+#     vseq <- as.character(ighv_mus_df$seq[indV])
+#     dseq <- as.character(ighd_mus_df$seq[indD])
+#     jseq <- as.character(ighj_mus_df$seq[indJ])
+#     germline <- paste(as.character(ighv_mus_df[[2]][indV]),as.character(ighd_mus_df[[2]][indD]),as.character(ighj_mus_df[[2]][indJ]),sep="")
+#     germline_v <- as.character(ighv_mus_df[[1]][indV])
+#     germline_d <- as.character(ighd_mus_df[[1]][indD])
+#     germline_j <- as.character(ighj_mus_df[[1]][indJ])
+  }
+  else if(species=="hum" || species== "human" && chain.type=="heavy"){
+    indV <- sample(x = 1:nrow(ighv_hum_df),size = 1,replace = FALSE)
+    indD <- sample(x = 1:nrow(ighd_hum_df),size=1,replace=FALSE)
+    indJ <- sample(x = 1:nrow(ighj_hum_df),size=1,replace=FALSE)
+    germline_name[1] <- paste(as.character(ighv_hum_df[[1]][indV]),as.character(ighd_hum_df[[1]][indD]),as.character(ighj_hum_df[[1]][indJ]),sep="")
+    germline_vseq[1] <- as.character(ighv_hum_df[[2]][indV])
+    germline_dseq[1] <- as.character(ighd_hum_df[[2]][indD])
+    germline_jseq[1] <- as.character(ighj_hum_df[[2]][indJ])
+    germline_seq[1] <- paste(as.character(ighv_hum_df[[2]][indV]),as.character(ighd_hum_df[[2]][indD]),as.character(ighj_hum_df[[2]][indJ]),sep="")
+    seq_list[[1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(ighv_hum_df[[2]][indV]), as.character(ighd_hum_df[[2]][indD]),as.character(ighj_hum_df[[2]][indJ]),
+                                                         method=vdj.model,
+                                                         chain.type=chain.type,
+                                                         species=species,
+                                                         vdj.insertion.mean=vdj.insertion.mean,
+                                                         vdj.insertion.stdv=vdj.insertion.stdv))
     name_list[[1]] <- paste(paste("S","1", sep=""),1,sep="_")
   }
-  else if(species=="hum" || species== "human"){
-    indV <- sample(x = 1:nrow(hum_v_df),size = 1,replace = FALSE)
-    indD <- sample(x = 1:nrow(hum_d_df),size=1,replace=FALSE)
-    indJ <- sample(x = 1:nrow(hum_j_df),size=1,replace=FALSE)
-    germline_name[1] <- paste(as.character(hum_v_df[[1]][indV]),as.character(hum_d_df[[1]][indD]),as.character(hum_j_df[[1]][indJ]),sep="")
-    germline_vseq[1] <- as.character(hum_v_df[[2]][indV])
-    germline_dseq[1] <- as.character(hum_d_df[[2]][indD])
-    germline_jseq[1] <- as.character(hum_j_df[[2]][indJ])
-    germline_seq[1] <- paste(as.character(hum_v_df[[2]][indV]),as.character(hum_d_df[[2]][indD]),as.character(hum_j_df[[2]][indJ]),sep="")
-    seq_list[[1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(hum_v_df[[2]][indV]), as.character(hum_d_df[[2]][indD]),as.character(hum_j_df[[2]][indJ]),"naive"))
+
+  ### light chains
+  else if(species=="hum" || species== "human" && chain.type=="light"){
+    indV <- sample(x = 1:nrow(rbind(iglv_hum_df,igkv_hum_df)),size = 1,replace = FALSE)
+    #indD <- sample(x = 1:nrow(rbind(iglv_mus_df,igkv_mus_df)),size=1,replace=FALSE)
+    indJ <- sample(x = 1:nrow(rbind(iglj_hum_df,igkj_hum_df)),size=1,replace=FALSE)
+    germline_name[1] <- paste(as.character(rbind(iglv_hum_df,igkv_hum_df)[[1]][indV]),"",as.character(rbind(iglv_hum_df,igkv_hum_df)[[1]][indJ]),sep="")
+    germline_vseq[1] <- as.character(rbind(iglv_hum_df,igkv_hum_df)[[2]][indV])
+    germline_dseq[1] <- "" #as.character(ighd_hum_df[[2]][indD])
+    germline_jseq[1] <- as.character(rbind(iglj_hum_df,igkj_hum_df)[[2]][indJ])
+    germline_seq[1] <- paste(as.character(rbind(iglv_hum_df,igkv_hum_df)[[2]][indV]),"",as.character(rbind(iglv_hum_df,igkv_hum_df)[[2]][indJ]),sep="")
+    seq_list[[1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(rbind(iglv_mus_df,igkv_mus_df)[[2]][indV]), "",as.character(rbind(iglj_mus_df,igkj_mus_df)[[2]][indJ]),
+                                                         method=vdj.model,
+                                                         chain.type=chain.type,
+                                                         species=species,
+                                                         vdj.insertion.mean=vdj.insertion.mean,
+                                                         vdj.insertion.stdv=vdj.insertion.stdv))
+    name_list[[1]] <- paste(paste("S","1", sep=""),1,sep="_")
+  }
+  else if(species=="mus" || species=="mouse" || species=="blc6" && chain.type=="light"){
+    indV <- sample(x = 1:nrow(rbind(iglv_mus_df,igkv_mus_df)),size = 1,replace = FALSE)
+    #indD <- sample(x = 1:nrow(rbind(iglv_mus_df,igkv_mus_df)),size=1,replace=FALSE)
+    indJ <- sample(x = 1:nrow(rbind(iglj_mus_df,igkj_mus_df)),size=1,replace=FALSE)
+    germline_name[1] <- paste(as.character(rbind(iglv_mus_df,igkv_mus_df)[[1]][indV]),"",as.character(rbind(iglj_mus_df,igkj_mus_df)[[1]][indJ]),sep="")
+    germline_vseq[1] <- as.character(rbind(iglv_mus_df,igkv_mus_df)[[2]][indV])
+    germline_dseq[1] <- "" #as.character(rbind(iglv_mus_df,igkv_mus_df)[[2]][indD])
+    germline_jseq[1] <- as.character(rbind(iglv_mus_df,igkv_mus_df)[[2]][indJ])
+    germline_seq[1] <- paste(as.character(rbind(iglv_mus_df,igkv_mus_df)[[2]][indV]),"",as.character(rbind(iglj_mus_df,igkj_mus_df)[[2]][indJ]),sep="")
+    seq_list[[1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(rbind(iglv_mus_df,igkv_mus_df)[[2]][indV]),"",as.character(rbind(iglj_mus_df,igkj_mus_df)[[2]][indJ]),
+                                                         method=vdj.model,
+                                                         chain.type=chain.type,
+                                                         species=species,
+                                                         vdj.insertion.mean=vdj.insertion.mean,
+                                                         vdj.insertion.stdv=vdj.insertion.stdv))
     name_list[[1]] <- paste(paste("S","1", sep=""),1,sep="_")
   }
 
@@ -135,21 +196,58 @@ fullRepertoire <- function(max.seq.num,
     is_new_VDJ <- sample(x=c(0,1), replace=TRUE,size = 1, prob=c(VDJ.branch.prob,
                                                         1- VDJ.branch.prob))
     if(is_new_VDJ==0 && current_seq_count<max.seq.num && current_tree_num<max.tree.num){
-      if(species=="mus" || species=="mouse"){
-        indV <- sample(x = 1:nrow(blc6_v_df),size = 1,replace = FALSE)
-        indD <- sample(x = 1:nrow(blc6_d_df),size=1,replace=FALSE)
-        indJ <- sample(x = 1:nrow(blc6_j_df),size=1,replace=FALSE)
-        germline_name[current_tree_num+1] <- paste(as.character(blc6_v_df[[1]][indV]),as.character(blc6_d_df[[1]][indD]),as.character(blc6_j_df[[1]][indJ]),sep="")
-        germline_seq[current_tree_num+1] <- paste(as.character(blc6_v_df[[2]][indV]),as.character(blc6_d_df[[2]][indD]),as.character(blc6_j_df[[2]][indJ]),sep="")
-        seq_list[[current_tree_num+1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(blc6_v_df[[2]][indV]), as.character(blc6_d_df[[2]][indD]),as.character(blc6_j_df[[2]][indJ]),"naive"))
+      if(species=="mus" || species=="mouse" || species=="blc6" && chain.type=="heavy"){
+        indV <- sample(x = 1:nrow(ighv_mus_df),size = 1,replace = FALSE)
+        indD <- sample(x = 1:nrow(ighd_mus_df),size=1,replace=FALSE)
+        indJ <- sample(x = 1:nrow(ighj_mus_df),size=1,replace=FALSE)
+        germline_name[current_tree_num+1] <- paste(as.character(ighv_mus_df[[1]][indV]),as.character(ighd_mus_df[[1]][indD]),as.character(ighj_mus_df[[1]][indJ]),sep="")
+        germline_seq[current_tree_num+1] <- paste(as.character(ighv_mus_df[[2]][indV]),as.character(ighd_mus_df[[2]][indD]),as.character(ighj_mus_df[[2]][indJ]),sep="")
+        seq_list[[current_tree_num+1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(ighv_mus_df[[2]][indV]), as.character(ighd_mus_df[[2]][indD]),as.character(ighj_mus_df[[2]][indJ]),
+                                                                              method=vdj.model,
+                                                                              chain.type=chain.type,
+                                                                              species=species,
+                                                                              vdj.insertion.mean=vdj.insertion.mean,
+                                                                              vdj.insertion.stdv=vdj.insertion.stdv))
       }
-      else if(species=="hum" || species== "human"){
-        indV <- sample(x = 1:nrow(hum_v_df),size = 1,replace = FALSE)
-        indD <- sample(x = 1:nrow(hum_d_df),size=1,replace=FALSE)
-        indJ <- sample(x = 1:nrow(hum_j_df),size=1,replace=FALSE)
-        germline_name[current_tree_num+1] <- paste(as.character(hum_v_df[[1]][indV]),as.character(hum_d_df[[1]][indD]),as.character(hum_j_df[[1]][indJ]),sep="")
-        germline_seq[current_tree_num+1] <- paste(as.character(hum_v_df[[2]][indV]),as.character(hum_d_df[[2]][indD]),as.character(hum_j_df[[2]][indJ]),sep="")
-        seq_list[[current_tree_num+1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(hum_v_df[[2]][indV]), as.character(hum_d_df[[2]][indD]),as.character(hum_j_df[[2]][indJ]),"naive"))
+
+      else if(species=="hum" || species== "human" && chain.type=="heavy"){
+        indV <- sample(x = 1:nrow(ighv_hum_df),size = 1,replace = FALSE)
+        indD <- sample(x = 1:nrow(ighd_hum_df),size=1,replace=FALSE)
+        indJ <- sample(x = 1:nrow(ighj_hum_df),size=1,replace=FALSE)
+        germline_name[current_tree_num+1] <- paste(as.character(ighv_hum_df[[1]][indV]),as.character(ighd_hum_df[[1]][indD]),as.character(ighj_hum_df[[1]][indJ]),sep="")
+        germline_seq[current_tree_num+1] <- paste(as.character(ighv_hum_df[[2]][indV]),as.character(ighd_hum_df[[2]][indD]),as.character(ighj_hum_df[[2]][indJ]),sep="")
+        seq_list[[current_tree_num+1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(ighv_hum_df[[2]][indV]), as.character(ighd_hum_df[[2]][indD]),as.character(ighj_hum_df[[2]][indJ]),
+                                                                              method=vdj.model,
+                                                                              chain.type=chain.type,
+                                                                              species=species,
+                                                                              vdj.insertion.mean=vdj.insertion.mean,
+                                                                              vdj.insertion.stdv=vdj.insertion.stdv))
+      }
+      else if(species=="mus" || species=="mouse" || species=="blc6" && chain.type=="light"){
+        indV <- sample(x = 1:nrow(rbind(iglv_mus_df,igkv_mus_df)),size = 1,replace = FALSE)
+        #indD <- sample(x = 1:nrow(blc6_d_df),size=1,replace=FALSE)
+        indJ <- sample(x = 1:nrow(rbind(iglj_mus_df,igkj_mus_df)),size=1,replace=FALSE)
+        germline_name[current_tree_num+1] <- paste(as.character(rbind(iglv_mus_df,igkv_mus_df)[[1]][indV]),"",as.character(rbind(iglj_mus_df,igkj_mus_df)[[1]][indJ]),sep="")
+        germline_seq[current_tree_num+1] <- paste(as.character(rbind(iglv_mus_df,igkv_mus_df)[[2]][indV]),"",as.character(rbind(iglj_mus_df,igkj_mus_df)[[2]][indJ]),sep="")
+        seq_list[[current_tree_num+1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(rbind(iglv_mus_df,igkv_mus_df)[[2]][indV]), "",as.character(rbind(iglj_mus_df,igkj_mus_df)[[2]][indJ]),
+                                                                              method=vdj.model,
+                                                                              chain.type=chain.type,
+                                                                              species=species,
+                                                                              vdj.insertion.mean=vdj.insertion.mean,
+                                                                              vdj.insertion.stdv=vdj.insertion.stdv))
+      }
+      else if(species=="hum" || species== "human" && chain.type=="light"){
+        indV <- sample(x = 1:nrow(rbind(iglv_hum_df,igkv_hum_df)),size = 1,replace = FALSE)
+        #indD <- #sample(x = 1:nrow(rbind(iglv_hum_df,igkv_hum_df)),size=1,replace=FALSE)
+        indJ <- sample(x = 1:nrow(rbind(iglj_hum_df,igkj_hum_df)),size=1,replace=FALSE)
+        germline_name[current_tree_num+1] <- paste(as.character(rbind(iglv_hum_df,igkv_hum_df)[[1]][indV]),"",as.character(rbind(iglj_hum_df,igkj_hum_df)[[1]][indJ]),sep="")
+        germline_seq[current_tree_num+1] <- paste(as.character(rbind(iglv_hum_df,igkv_hum_df)[[2]][indV]),"",as.character(rbind(iglj_hum_df,igkj_hum_df)[[2]][indJ]),sep="")
+        seq_list[[current_tree_num+1]] <- as.character(.VDJ_RECOMBIN_FUNCTION(as.character(rbind(iglv_hum_df,igkv_hum_df)[[2]][indV]),"",as.character(rbind(iglj_hum_df,igkj_hum_df)[[2]][indJ]),
+                                                                              method=vdj.model,
+                                                                              chain.type=chain.type,
+                                                                              species=species,
+                                                                              vdj.insertion.mean=vdj.insertion.mean,
+                                                                              vdj.insertion.stdv=vdj.insertion.stdv))
       }
       name_list[[current_tree_num+1]] <- paste(paste("S",next_node, sep=""),i,sep="_")
 

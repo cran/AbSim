@@ -1,24 +1,20 @@
 #internal functions
 
-.VDJ_RECOMBIN_FUNCTION <- function(v_seq, d_seq, j_seq, method){
+.VDJ_RECOMBIN_FUNCTION <- function(v_seq, d_seq, j_seq,
+                                   method, chain.type, species,
+                                   vdj.insertion.mean,
+                                   vdj.insertion.stdv){
   base_array <- c("a", "t", "g", "c")
   base_probs <- c(.25,.25,.25,.25)
-  insertion_function <- function(seq1, seq2){
 
-  }
-  vdj_deletion_function <- function(seq1,seq2){
-
-  }
   ## need to recombine V and D and D and J
-  if (method=="naive"){
+  if (method=="naive" && chain.type=="heavy"){
     base_array <- c("a", "t", "g", "c")
     base_probs <- c(.25,.25,.25,.25)
     vdj_options <- c("none", "deletion", "insertion")
-    vdj_options_prob <- c(.4,.3,.3)
+    vdj_options_prob <- c(1/3,1/3,1/3)
     recomb_decision <- sample(x = vdj_options, 2, replace=TRUE, prob = vdj_options_prob)
-    while(recomb_decision[1]=="none" && recomb_decision[2]=="none"){
-      recomb_decision <- sample(x = vdj_options, 2, replace=TRUE, prob = vdj_options_prob)
-    }
+
     ############ starts the combination between V and D
     if(recomb_decision[1]=="none"){ # no change
       v_d <- paste(v_seq, d_seq, sep="")
@@ -30,7 +26,7 @@
       v_d <- paste(v_seq_new, d_seq_new5, sep="")
     }
     else if(recomb_decision[1]=="insertion"){
-      insertion_length <- sample(x=c(1,2,3,4,5),1,replace=TRUE, prob=c(0.2,0.2,0.2,0.2,0.2))
+      insertion_length <- sample(x=c(2,4,6,8,10),1,replace=TRUE, prob=rep(.2,5))
       insertion_array <- sample(x=base_array, insertion_length, replace=TRUE, base_probs)
       insertion_string <- paste(insertion_array, collapse='')
       v_d <- paste(v_seq, insertion_string, d_seq, sep="")
@@ -46,7 +42,7 @@
       vdj <- paste(v_d_new, j_new, sep="")
     }
     else if(recomb_decision[2]=="insertion"){
-      dj_insertion_length <- sample(x=c(3,6,9,12),1,replace=TRUE, prob=c(0.25,0.25,0.25,0.25))
+      dj_insertion_length <- sample(x=c(2,4,6,8,10),1,replace=TRUE, prob=rep(.2,5))
       dj_insertion_array <- sample(x=base_array, dj_insertion_length, replace=TRUE, base_probs)
       dj_insertion_string <- paste(dj_insertion_array, collapse='')
       vdj <- paste(v_d, dj_insertion_string, j_seq, sep="")
@@ -55,18 +51,136 @@
 
     return(vdj)
   }
-  ## use data driven method
+  ## use data driven method for heavy chain with new insertion probabilities
+  else if (method=="data" && chain.type=="heavy"){
+    base_array <- c("a", "t", "g", "c")
+    base_probs <- c(.25,.25,.25,.25)
+    vdj_options <- c("none", "deletion", "insertion")
+    vdj_options_prob <- c(1/3,1/3,1/3)
+    recomb_decision <- sample(x = vdj_options, 2, replace=TRUE, prob = vdj_options_prob)
+
+    ############ starts the combination between V and D
+    if(recomb_decision[1]=="none"){ # no change
+      v_d <- paste(v_seq, d_seq, sep="")
+    }
+    else if(recomb_decision[1]=="deletion"){
+      # v_seq_new loses 3' end and d_seq_new1 loses up to 5' bases
+      v_seq_new <- substring(v_seq,first=1, last=nchar(v_seq)-sample(x=c(0,1,2,3,4,5),1,replace=TRUE, prob=c(0.3,0.2,0.2,0.1,0.1,0.1)))
+      d_seq_new5 <- substring(d_seq, first=sample(x=c(1,2,3,4,5,6),1,replace=TRUE,prob=c(0.3,0.2,0.2,0.1,0.1,0.1)), last=nchar(d_seq))
+      v_d <- paste(v_seq_new, d_seq_new5, sep="")
+    }
+    else if(recomb_decision[1]=="insertion"){
+      if(species=="mus" && vdj.insertion.mean=="default"){
+      insertion_length <- stats::rnorm(n=1,mean=4.0,sd=vdj.insertion.stdv)
+      }
+      else if(species=="hum" && vdj.insertion.mean=="default"){ ### need to update this still
+        insertion_length <- sample(x=c(1,2,3,4,5),1,replace=TRUE, prob=c(0.2,0.2,0.2,0.2,0.2))
+      }
+      else{
+      insertion_length <- as.integer(abs(stats::rnorm(n=1,mean=vdj.insertion.mean,sd=vdj.insertion.stdv)))
+      }
+      #insertion_length <- sample(x=c(1,2,3,4,5),1,replace=TRUE, prob=c(0.2,0.2,0.2,0.2,0.2))
+      insertion_array <- sample(x=base_array, insertion_length, replace=TRUE, base_probs)
+      insertion_string <- paste(insertion_array, collapse='')
+      v_d <- paste(v_seq, insertion_string, d_seq, sep="")
+
+    } ### END recombination between v and d regions and start D and J
+    if(recomb_decision[2]=="none"){
+      vdj <- paste(v_d, j_seq, sep="")
+    }
+    else if(recomb_decision[2]=="deletion"){
+      ### need to cut off the end of v_d and cut off the 5' of J
+      v_d_new <- substring(v_d,first=1, last=nchar(v_d)-sample(x=c(1,2,3,4,5),1,replace=TRUE, prob=c(0.2,0.2,0.2,0.2,0.2)))
+      j_new <- substring(j_seq, first=sample(x=c(1,2,3,4,5),1,replace=TRUE,prob=c(0.2,0.2,0.2,0.2,0.2)), last=nchar(j_seq))
+      vdj <- paste(v_d_new, j_new, sep="")
+    }
+    else if(recomb_decision[2]=="insertion"){
+      if(species=="mus" && vdj.insertion.mean=="default"){
+        dj_insertion_length <- as.integer(abs(stats::rnorm(n=1,mean=2.9,sd=vdj.insertion.stdv)))
+      }
+      else if(species=="hum" && vdj.insertion.mean=="default"){ ### need to update this still for human dj
+        dj_insertion_length <- sample(x=c(1,2,3,4,5),1,replace=TRUE, prob=c(0.2,0.2,0.2,0.2,0.2))
+      }
+      else{
+        dj_insertion_length <- as.integer(abs(stats::rnorm(n=1,mean=vdj.insertion.mean,sd=vdj.insertion.stdv)))
+      }
+      #dj_insertion_length <- sample(x=c(2,4,6,8,10),1,replace=TRUE, prob=c(.2,.2,.2,.2,.2))
+      dj_insertion_array <- sample(x=base_array, dj_insertion_length, replace=TRUE, base_probs)
+      dj_insertion_string <- paste(dj_insertion_array, collapse='')
+      vdj <- paste(v_d, dj_insertion_string, j_seq, sep="")
+    } ### ends the second recom_decision if-else
+
+
+    return(vdj)
+  }
+  else if (chain.type=="light" && method=="naive"){
+    base_array <- c("a", "t", "g", "c")
+    base_probs <- c(.25,.25,.25,.25)
+    vdj_options <- c("none", "deletion", "insertion")
+    vdj_options_prob <- c(1/3,1/3,1/3)
+    ## changed to only one event for light chain
+    recomb_decision <- sample(x = vdj_options, 1, replace=TRUE, prob = vdj_options_prob)
+
+    ############ starts the combination between V and D
+    if(recomb_decision[1]=="none"){ # no change
+      v_j <- paste(v_seq, j_seq, sep="")
+    }
+    else if(recomb_decision[1]=="deletion"){
+      # v_seq_new loses 3' end and d_seq_new1 loses up to 5' bases
+      v_seq_new <- substring(v_seq,first=1, last=nchar(v_seq)-sample(x=c(0,1,2,3,4,5),1,replace=TRUE, prob=c(0.3,0.2,0.2,0.1,0.1,0.1)))
+      j_seq_new5 <- substring(j_seq, first=sample(x=c(1,2,3,4,5,6),1,replace=TRUE,prob=c(0.3,0.2,0.2,0.1,0.1,0.1)), last=nchar(j_seq))
+      v_j <- paste(v_seq_new, j_seq_new5, sep="")
+    }
+    else if(recomb_decision[1]=="insertion"){
+      insertion_length <- sample(x=c(1,2,3,4,5),1,replace=TRUE, prob=c(0.2,0.2,0.2,0.2,0.2))
+      insertion_array <- sample(x=base_array, insertion_length, replace=TRUE, base_probs)
+      insertion_string <- paste(insertion_array, collapse='')
+      v_j <- paste(v_seq, insertion_string, j_seq, sep="")
+
+    } ### END recombination between v and j regions light chain
+
+    return(v_j)
+  }
+
+  else if (chain.type=="light" && method=="data"){
+    base_array <- c("a", "t", "g", "c")
+    base_probs <- c(.25,.25,.25,.25)
+    vdj_options <- c("none", "deletion", "insertion")
+    vdj_options_prob <- c(1/3,1/3,1/3)
+    ## changed to only one event for light chain
+    recomb_decision <- sample(x = vdj_options, 1, replace=TRUE, prob = vdj_options_prob)
+
+    ############ starts the combination between V and D
+    if(recomb_decision[1]=="none"){ # no change
+      v_j <- paste(v_seq, j_seq, sep="")
+    }
+    else if(recomb_decision[1]=="deletion"){
+      # v_seq_new loses 3' end and d_seq_new1 loses up to 5' bases
+      v_seq_new <- substring(v_seq,first=1, last=nchar(v_seq)-sample(x=c(0,1,2,3,4,5),1,replace=TRUE, prob=c(0.3,0.2,0.2,0.1,0.1,0.1)))
+      j_seq_new5 <- substring(j_seq, first=sample(x=c(1,2,3,4,5,6),1,replace=TRUE,prob=c(0.3,0.2,0.2,0.1,0.1,0.1)), last=nchar(j_seq))
+      v_j <- paste(v_seq_new, j_seq_new5, sep="")
+    }
+    else if(recomb_decision[1]=="insertion"){
+      if(vdj.insertion.mean=="default") insertion_length <- new_SHM_prob <- as.integer(abs(stats::rnorm(n=1,mean=4,sd=vdj.insertion.stdv)))
+      else{
+      insertion_length <- as.integer(abs(stats::rnorm(n=1,mean=vdj.insertion.mean,sd=vdj.insertion.stdv)))
+      }
+      #insertion_length <- sample(x=c(1,2,3,4,5),1,replace=TRUE, prob=c(0.2,0.2,0.2,0.2,0.2))
+      insertion_array <- sample(x=base_array, insertion_length, replace=TRUE, base_probs)
+      insertion_string <- paste(insertion_array, collapse='')
+      v_j <- paste(v_seq, insertion_string, j_seq, sep="")
+
+    } ### END recombination between v and j regions light chain
+
+    return(v_j)
+  }
+
+
 }
+
 
 .SHM_FUNCTION_SEQUENCE4 <- function(vdj_seq, mut_param,v_seq,
                                    d_seq,j_seq, SHM.nuc.prob){
-  #hot_spot_df <- read.table(file="~/PHD/Phylo/simu_results/pipeline/fivemer_one.csv", header=TRUE)
-  #hot_spot_df <- read.table(file="~/PHD/Phylo/simu_results/pipeline/fivemer.csv", header=TRUE)
-  #one_spot_df <- read.table(file="~/PHD/Phylo/simu_results/pipeline/fivemer_one.csv", header=TRUE)
-  # @vdj_seq = sequence that will be mutated
-  # @mut_param = determines how the mutations are given to the sequence
-  # "naive" for random in whole VDJ, "cdr" for more in cdr region, "hotspot"
-  ## 10^-3/bp/generation -
 
   base_line_mutations <- 0
   if(mut_param=="naive" || mut_param=="all"){

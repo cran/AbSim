@@ -20,11 +20,14 @@ The output of the simulation provides information regarding the sequence composi
 
 Sometimes it may be desirable to include multiple VDJ events and somatic hypermutation (SHM) events in a single lineage. The singleLineage function allows for branching events to arise from both VDJ recombination and SHM events. This simulation begins with only one set of unmutated germline sequences, which will be used to produce a first VDJ recombination event. The lineage tree begins with one internal node connecting the unmutated germline sequence and the VDJ-recombined sequence. At each time step, there is a possibility for branching events in the form of VDJ recombination (only the unmutated germline can do this) or SHM (all non-germline sequences can undergo this). 
 
-While this function draws heavily from the fullRepertoire function (see Section 3), the main difference is that multiple VDJ events can occur within a single tree (determined by the max.VDJ parameter). These VDJ recombinations result in a branching event at the unmutated germline tip. In the full repertoire, VDJ recombination events exclusively start a new tree. An example set of parameters one could call is shown below. The following code randomly selects one set of V-, D-, and J-segments from the C57BL/6 mouse and use only these germline genes to generate the phylogeny. Three independent VDJ recombination events will occur, each of which cause the germline to undergo a branching event. 
+While this function draws heavily from the fullRepertoire function (see Section 3), the main difference is that multiple VDJ events can occur within a single tree (determined by the max.VDJ parameter). These VDJ recombinations result in a branching event at the unmutated germline tip. In the full repertoire, VDJ recombination events exclusively start a new tree. An example set of parameters one could call is shown below. The following code randomly selects one set of V-, D-, and J-segments from the C57BL/6 mouse and use only these germline genes to generate the phylogeny. Three independent VDJ recombination events will occur, each of which cause the germline to undergo a branching event. The VDJ recombination events can either follow a naive model, which is the same for both human and mice VDJ recombination events, an "data" based probability distribution based on high throughput sequencing data sets that vary both for mice/human and for VD vs DJ junctions. The user can additionally input a mean and standard deviation for the distribution (will be normally distributed based on these parameter 
+values). 
+
 
 ```{r, fig.show='hold'}
-single.lineage.test <- AbSim::singleLineage(max.seq.num=20,max.timer=150,SHM.method="naive",baseline.mut = 0.0008,SHM.branch.prob = "identical", SHM.branch.param = 0.05, SHM.nuc.prob = 15/350,species="mus", max.VDJ = 3, VDJ.branch.prob = 0.3,proportion.sampled = 1,sample.time = 30)
+single.lineage.test <- AbSim::singleLineage(max.seq.num=20,max.timer=150,SHM.method="naive",baseline.mut = 0.0008,SHM.branch.prob = "identical", SHM.branch.param = 0.05, SHM.nuc.prob = 15/350,species="mus", max.VDJ = 3, VDJ.branch.prob = 0.3,proportion.sampled = 1,sample.time = 30, chain.type="heavy",vdj.model="naive", vdj.insertion.mean=4,vdj.insertion.stdv=2)
 ```
+
 
 ### 2.1. Single lineage sequences
 
@@ -87,7 +90,7 @@ The function fullRepertoire is used to simulate the base diversity of full antib
 
 ```{r, fig.show='hold'}
 
-full.repertoire.test <- AbSim::fullRepertoire(max.seq.num=30, max.timer=150, SHM.method="naive", baseline.mut = 0.0008, SHM.branch.prob = "identical", SHM.branch.param = 0.1, SHM.nuc.prob = 15/350, species="mus", VDJ.branch.prob = 0.8, proportion.sampled = 1, sample.time = 15,max.tree.num = 3)
+full.repertoire.test <- AbSim::fullRepertoire(max.seq.num=30, max.timer=150, SHM.method="naive", baseline.mut = 0.0008, SHM.branch.prob = "identical", SHM.branch.param = 0.1, SHM.nuc.prob = 15/350, species="mus", VDJ.branch.prob = 0.8, proportion.sampled = 1, sample.time = 15,max.tree.num = 3, chain.type="heavy",vdj.model="naive", vdj.insertion.mean=4,vdj.insertion.stdv=2)
 
 
 ```
@@ -203,3 +206,24 @@ tree.without.germline <- ape::drop.tip(single.lineage.test[[3]][[1]],tip=1)
 
 ```
 
+
+### 5.3 Changing germline elements
+The germline gene elements able to be simulated can be specified by the user 
+by altering the internal R dataframes. As described in the documentation, each
+data frame has two categories, "gene", which stores the name of the germline segment
+(including information about heavy/light/v/d/j) and "seq" where the sequence is stored 
+as a character. These can be modified like any other data frame in R. Additionally, 
+specific sequences can be repeated to increase the chance of a given sequence 
+appearing during the simulation process. There are data frames for both heavy and
+light chains (although the kappa and lambda chains are currently stored in
+different data frames)
+
+
+### 5.4 Exporting as fasta
+AbSim can also export the sequences of a repertoire or single lineage in fasta format using the repertoireFastas() function. This will create one fasta file per tree at the specified directory. This function internally uses the write.dna() function present 
+in the ape package. 
+
+### 5.5 Increasing performance for full repertoire 
+Depending on your desired output, it may be faster to call singleLineage() multiple times
+in a loop than use the fullRepertoire() function. This can reduce the run time dramatically at the trade off of losing the sequence numbering and assuming that lineages evolve independently from each other. For example, using fullRepertoire() with 8,512 max sequences 
+and max.tree.num=448 (selected to mirror an experimental data) takes approximately 45 minutes, whereas creating the same size repertoire using multiple singleLineage() call can take less than two minutes. 

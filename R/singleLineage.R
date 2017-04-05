@@ -49,6 +49,23 @@
 #' Specifiying 1 indicates that all sequences will be recovered at each time point, whereas 0.5 will sample half of the
 #' sequences.
 #' @param sample.time Integer array indicating the time points at which sampling events should occur.
+#' @param chain.type String determining whether heavy or light chain should
+#' be simulated. Either "heavy" for heavy chains or "light" for light
+#' chains. Heavy chains will have V-D-J recombination, whereas light chain
+#' will just have V-J recombination.
+#' @param vdj.model Specifies the model used to simulate V-D-J recombination. Can be
+#' either "naive" or "data". "naive" is chain independent and does not differentiate
+#' between different species. To rely on the default "experimental" options, this
+#' should be "data" and the parameter vdj.insertion.mean should be "default". This will
+#' allow for different mean additions for either the VD and JD junctions and will
+#' differ depending on species.
+#' @param vdj.insertion.mean Integer value describing the mean number of nucleotides to be inserted during
+#' simulated V-D-J recombination events. If "default" is entered, the mean will be normally distribut
+#' @param vdj.insertion.stdv Integer value describing the standard deviation corresponding to insertions
+#' of V-D-J recombination. No "default" parameter currently supported but will be updated
+#' with future experimental data. This should be a number if using a custom distribution
+#' for V-D-J recombination events, but can be "default" if using the "naive" vdj.model
+#' or the "data", with vdj.insertion.mean set to "default".
 #' @return Returns a nested list containing both sequence information and phylogenetic trees.
 #' If "output" is the returned object, then output[[1]][[1]] is an array of the simulated sequences
 #' output[[2]][[1]] is an array names corresponding to each sequence. For example, output[[2]][[1]][1]
@@ -63,12 +80,14 @@
 #' @seealso fullRepertoire
 #' @export
 #' @examples
-#' singleLineage(max.seq.num=40,max.timer=150,
-#'  SHM.method="naive",SHM.nuc.prob = 15/350,
-#'  baseline.mut = 0.0008, SHM.branch.prob = "identical",
-#'  SHM.branch.param = 0.05, species="mus",
-#'  max.VDJ = 1, VDJ.branch.prob = 0.1,
-#'  proportion.sampled = 1, sample.time = 50)
+# singleLineage(max.seq.num=40,max.timer=150,
+#  SHM.method="naive",SHM.nuc.prob = 15/350,
+#  baseline.mut = 0.0008, SHM.branch.prob = "identical",
+#  SHM.branch.param = 0.05, species="mus",
+#  max.VDJ = 1, VDJ.branch.prob = 0.1,
+#  proportion.sampled = 1, sample.time = 50,
+#  chain.type="heavy",vdj.model="naive",
+#  vdj.insertion.mean=4,vdj.insertion.stdv=2)
 
 singleLineage <- function(max.seq.num,
                           max.timer,
@@ -81,39 +100,69 @@ singleLineage <- function(max.seq.num,
                           max.VDJ,
                           VDJ.branch.prob,
                           proportion.sampled,
-                          sample.time){
+                          sample.time,
+                          chain.type,
+                          vdj.model,
+                          vdj.insertion.mean,
+                          vdj.insertion.stdv){
   max.seq.num <- max.seq.num + 1
   output_list <- list()
   max_SHM <- max.seq.num - max.VDJ
-  if(species=="mus" || species=="mouse" || species=="blc6"){
-    indV <- sample(x = 1:nrow(blc6_v_df),size = 1,replace = FALSE)
-    indD <- sample(x = 1:nrow(blc6_d_df),size=1,replace=FALSE)
-    indJ <- sample(x = 1:nrow(blc6_j_df),size=1,replace=FALSE)
-    vseq <- as.character(blc6_v_df$seq[indV])
-    dseq <- as.character(blc6_d_df$seq[indD])
-    jseq <- as.character(blc6_j_df$seq[indJ])
-    germline <- paste(as.character(blc6_v_df[[2]][indV]),as.character(blc6_d_df[[2]][indD]),as.character(blc6_j_df[[2]][indJ]),sep="")
-    germline_v <- as.character(blc6_v_df[[1]][indV])
-    germline_d <- as.character(blc6_d_df[[1]][indD])
-    germline_j <- as.character(blc6_j_df[[1]][indJ])
+  if(chain.type=="heavy" && species=="mus" || species=="mouse" || species=="blc6"){
+    indV <- sample(x = 1:nrow(ighv_mus_df),size = 1,replace = FALSE)
+    indD <- sample(x = 1:nrow(ighd_mus_df),size=1,replace=FALSE)
+    indJ <- sample(x = 1:nrow(ighj_mus_df),size=1,replace=FALSE)
+    vseq <- as.character(ighv_mus_df$seq[indV])
+    dseq <- as.character(ighd_mus_df$seq[indD])
+    jseq <- as.character(ighj_mus_df$seq[indJ])
+    germline <- paste(as.character(ighv_mus_df[[2]][indV]),as.character(ighd_mus_df[[2]][indD]),as.character(ighj_mus_df[[2]][indJ]),sep="")
+    germline_v <- as.character(ighv_mus_df[[1]][indV])
+    germline_d <- as.character(ighd_mus_df[[1]][indD])
+    germline_j <- as.character(ighj_mus_df[[1]][indJ])
   }
-  else if(species=="hum" || species=="human"){
-    indV <- sample(x = 1:nrow(hum_v_df),size = 1,replace = FALSE)
-    indD <- sample(x = 1:nrow(hum_d_df),size=1,replace=FALSE)
-    indJ <- sample(x = 1:nrow(hum_j_df),size=1,replace=FALSE)
-    vseq <- as.character(hum_v_df[[2]][indV])
-    dseq <- as.character(hum_d_df[[2]][indD])
-    jseq <- as.character(hum_j_df[[2]][indJ])
-    germline <- paste(as.character(hum_v_df[[2]][indV]),as.character(hum_d_df[[2]][indD]),as.character(hum_j_df[[2]][indJ]),sep="")
-    germline_v <- as.character(hum_v_df[[1]][indV])
-    germline_d <- as.character(hum_d_df[[1]][indD])
-    germline_j <- as.character(hum_j_df[[1]][indJ])
+  else if(chain.type=="heavy" && species=="hum" || species=="human"){
+    indV <- sample(x = 1:nrow(ighv_hum_df),size = 1,replace = FALSE)
+    indD <- sample(x = 1:nrow(ighd_hum_df),size=1,replace=FALSE)
+    indJ <- sample(x = 1:nrow(ighj_hum_df),size=1,replace=FALSE)
+    vseq <- as.character(ighv_hum_df[[2]][indV])
+    dseq <- as.character(ighd_hum_df[[2]][indD])
+    jseq <- as.character(ighj_hum_df[[2]][indJ])
+    germline <- paste(as.character(ighv_hum_df[[2]][indV]),as.character(ighd_hum_df[[2]][indD]),as.character(ighj_hum_df[[2]][indJ]),sep="")
+    germline_v <- as.character(ighv_hum_df[[1]][indV])
+    germline_d <- as.character(ighd_hum_df[[1]][indD])
+    germline_j <- as.character(ighj_hum_df[[1]][indJ])
   }
+  else if(chain.type=="light" && species=="mus" || species=="mouse" || species=="blc6"){
+    indV <- sample(x = 1:nrow(rbind(iglv_mus_df,igkv_mus_df)),size = 1,replace = FALSE)
+    #indD <- sample(x = 1:nrow(rbind(igld_mus_df,igkd_mus_df)),size=1,replace=FALSE)
+    indJ <- sample(x = 1:nrow(rbind(iglj_mus_df,igkj_mus_df)),size=1,replace=FALSE)
+    vseq <- as.character(rbind(iglv_mus_df,igkv_mus_df)$seq[indV])
+    dseq <- ""
+    jseq <- as.character(rbind(iglj_mus_df,igkj_mus_df)$seq[indJ])
+    germline <- paste(as.character(rbind(iglv_mus_df,igkv_mus_df)[[2]][indV]),as.character(rbind(iglj_mus_df,igkj_mus_df)[[2]][indJ]),sep="")
+    germline_v <- as.character(rbind(iglv_mus_df,igkv_mus_df)[[1]][indV])
+    germline_d <- ""
+    germline_j <- as.character(rbind(iglj_mus_df,igkj_mus_df)[[1]][indJ])
+  }
+  else if(chain.type=="light" && species=="hum" || species=="human"){
+    indV <- sample(x = 1:nrow(rbind(iglv_hum_df,igkv_hum_df)),size = 1,replace = FALSE)
+    #indD <- sample(x = 1:nrow(rbind(igld_hum_df,igkd_hum_df)),size=1,replace=FALSE)
+    indJ <- sample(x = 1:nrow(rbind(iglj_hum_df,igkj_hum_df)),size=1,replace=FALSE)
+    vseq <- as.character(rbind(iglv_hum_df,igkv_hum_df)$seq[indV])
+    dseq <- ""
+    jseq <- as.character(rbind(iglj_hum_df,igkj_hum_df)$seq[indJ])
+    germline <- paste(as.character(rbind(iglv_hum_df,igkv_hum_df)[[2]][indV]),as.character(rbind(iglj_mus_df,igkj_mus_df)[[2]][indJ]),sep="")
+    germline_v <- as.character(rbind(iglv_hum_df,igkv_hum_df)[[1]][indV])
+    germline_d <- ""
+    germline_j <- as.character(rbind(iglj_hum_df,igkj_hum_df)[[1]][indJ])
+  }
+
+
   #germline <- paste(as.character(mus_hum_df[[1]][indV]),as.character(mus_hum_df[[1]][indD]),as.character(mus_hum_df[[1]][indJ]),sep="")
   #germline <- paste(vseq,dseq,jseq,sep="")
-#   germline_v <- as.character(mus_hum_df$gene[mus_hum_df$seq==vseq])
-#   germline_d <- as.character(mus_hum_df$gene[mus_hum_df$seq==dseq])
-#   germline_j <- as.character(mus_hum_df$gene[mus_hum_df$seq==jseq])
+#  germline_v <- as.character(mus_hum_df$gene[mus_hum_df$seq==vseq])
+#  germline_d <- as.character(mus_hum_df$gene[mus_hum_df$seq==dseq])
+#  germline_j <- as.character(mus_hum_df$gene[mus_hum_df$seq==jseq])
   current_seq_count <- 0
   VDJ_count <- 0
   SHM_count <- 0
@@ -168,7 +217,12 @@ singleLineage <- function(max.seq.num,
     is_new_VDJ <- sample(x=c(0,1), replace=TRUE, prob=c(VDJ.branch.prob,
                                                         1- VDJ.branch.prob))
     if(is_new_VDJ==0 && current_seq_count<max.seq.num && VDJ_count<max.VDJ){
-      seq_array[next_node] <- .VDJ_RECOMBIN_FUNCTION(vseq, dseq,jseq,"naive")
+      seq_array[next_node] <- .VDJ_RECOMBIN_FUNCTION(vseq, dseq,jseq,
+                                                     method=vdj.model,
+                                                     chain.type=chain.type,
+                                                     species=species,
+                                                     vdj.insertion.mean=vdj.insertion.mean,
+                                                     vdj.insertion.stdv=vdj.insertion.stdv)
       seq_names[next_node] <- paste(paste("L",next_node, sep=""),i,sep="_")
       if(next_node>=2){
         output_tree_text <- .branchingProcess3(output_tree_text,0,next_node,"lineage")
@@ -214,4 +268,6 @@ singleLineage <- function(max.seq.num,
   }
   return(output_list)
 }
+
+
 

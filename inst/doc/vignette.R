@@ -1,5 +1,5 @@
 ## ---- fig.show='hold'----------------------------------------------------
-single.lineage.test <- AbSim::singleLineage(max.seq.num=20,max.timer=150,SHM.method="naive",baseline.mut = 0.0008,SHM.branch.prob = "identical", SHM.branch.param = 0.05, SHM.nuc.prob = 15/350,species="mus", max.VDJ = 3, VDJ.branch.prob = 0.3,proportion.sampled = 1,sample.time = 30)
+single.lineage.test <- AbSim::singleLineage(max.seq.num=20,max.timer=150,SHM.method="naive",baseline.mut = 0.0008,SHM.branch.prob = "identical", SHM.branch.param = 0.05, SHM.nuc.prob = 15/350,species="mus", max.VDJ = 3, VDJ.branch.prob = 0.3,proportion.sampled = 1,sample.time = 30, chain.type="heavy",vdj.model="naive", vdj.insertion.mean=4,vdj.insertion.stdv=2)
 
 ## ---- fig.show='hold'----------------------------------------------------
 head(substring(single.lineage.test[[1]][[1]],first=1,last=20))
@@ -35,7 +35,7 @@ head(single.lineage.test[[5]]) # Names corresponding to above sequences at same 
 
 ## ---- fig.show='hold'----------------------------------------------------
 
-full.repertoire.test <- AbSim::fullRepertoire(max.seq.num=30, max.timer=150, SHM.method="naive", baseline.mut = 0.0008, SHM.branch.prob = "identical", SHM.branch.param = 0.1, SHM.nuc.prob = 15/350, species="mus", VDJ.branch.prob = 0.8, proportion.sampled = 1, sample.time = 15,max.tree.num = 3)
+full.repertoire.test <- AbSim::fullRepertoire(max.seq.num=30, max.timer=150, SHM.method="naive", baseline.mut = 0.0008, SHM.branch.prob = "identical", SHM.branch.param = 0.1, SHM.nuc.prob = 15/350, species="mus", VDJ.branch.prob = 0.8, proportion.sampled = 1, sample.time = 15,max.tree.num = 3, chain.type="heavy",vdj.model="naive", vdj.insertion.mean=4,vdj.insertion.stdv=2)
 
 
 

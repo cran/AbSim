@@ -24,7 +24,7 @@ repertoire is distributed. Options include "powerlaw" ("pl"), "identical" ("id")
 
 \item{with.germline}{Logical - If false, the germline from each lineage will be removed.}
 
-\item{dist.parameters}{Supplies the parameters for how the repertoire should
+\item{dist.parameters}{Supplies the parameters for how the clonal frequencies should
 be distributed.}
 }
 \value{
