@@ -4,7 +4,7 @@
 \name{igkv_hum_df}
 \alias{igkv_hum_df}
 \title{igkv_hum_df}
-\format{A data frame with 6 rows and 10 variables:
+\format{A data frame with 74 rows and 2 variables:
 \describe{
   \item{gene}{The gene name}
   \item{seq}{The corresponding sequence}

@@ -21,7 +21,7 @@ by modifying this dataframe. Repeating particular hotspot entries allows
 for the hotspot to mutate more than one time per SHM event.
 }
 \details{
-@format A data frame with 32 rows and 6 variables:
+@format A data frame with 1024 rows and 6 variables:
 \describe{
   \item{pattern}{Character array where each entry corresponds to a 5 base motif. The
   mutation probabilities correspond to the middle nucleotide in each 5mer.}

@@ -1,8 +1,8 @@
 Package: AbSim
 Type: Package
 Title: Time Resolved Simulations of Antibody Repertoires
-Version: 0.2.1
-Date: 2017-4-5
+Version: 0.2.2
+Date: 2017-6-18
 Author: Alexander Yermanos
 Maintainer: Alexander Yermanos <ayermano@ethz.ch>
 Depends: R(>= 3.1.0), ape, poweRlaw
@@ -13,6 +13,6 @@ RoxygenNote: 5.0.1
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2017-04-05 10:12:50 UTC; ayermano
+Packaged: 2017-06-18 17:57:25 UTC; ayermano
 Repository: CRAN
-Date/Publication: 2017-04-05 11:09:39 UTC
+Date/Publication: 2017-06-18 18:14:37 UTC

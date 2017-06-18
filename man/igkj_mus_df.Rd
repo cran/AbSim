@@ -4,7 +4,7 @@
 \name{igkj_mus_df}
 \alias{igkj_mus_df}
 \title{igkj_mus_df}
-\format{A data frame with 6 rows and 10 variables:
+\format{A data frame with 5 rows and 2 variables:
 \describe{
   \item{gene}{The gene name}
   \item{seq}{The corresponding sequence}

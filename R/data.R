@@ -88,7 +88,7 @@
 #' can give certain germline gene elements a larger probability of being used
 #' during repertoire evolution.
 #'
-#' @format A data frame with 6 rows and 10 variables:
+#' @format A data frame with 6 rows and 2 variables:
 #' \describe{
 #'   \item{gene}{The gene name}
 #'   \item{seq}{The corresponding sequence}
@@ -105,7 +105,7 @@
 #' can give certain germline gene elements a larger probability of being used
 #' during repertoire evolution.
 #'
-#' @format A data frame with 6 rows and 10 variables:
+#' @format A data frame with 74 rows and 2 variables:
 #' \describe{
 #'   \item{gene}{The gene name}
 #'   \item{seq}{The corresponding sequence}
@@ -123,7 +123,7 @@
 #' can give certain germline gene elements a larger probability of being used
 #' during repertoire evolution.
 #'
-#' @format A data frame with 6 rows and 10 variables:
+#' @format A data frame with 5 rows and 2 variables:
 #' \describe{
 #'   \item{gene}{The gene name}
 #'   \item{seq}{The corresponding sequence}
@@ -140,7 +140,7 @@
 #' can give certain germline gene elements a larger probability of being used
 #' during repertoire evolution.
 #'
-#' @format A data frame with 6 rows and 10 variables:
+#' @format A data frame with 76 rows and 2 variables:
 #' \describe{
 #'   \item{gene}{The gene name}
 #'   \item{seq}{The corresponding sequence}
@@ -157,7 +157,7 @@
 #' can give certain germline gene elements a larger probability of being used
 #' during repertoire evolution.
 #'
-#' @format A data frame with 6 rows and 10 variables:
+#' @format A data frame with 5 rows and 2 variables:
 #' \describe{
 #'   \item{gene}{The gene name}
 #'   \item{seq}{The corresponding sequence}
@@ -175,7 +175,7 @@
 #' can give certain germline gene elements a larger probability of being used
 #' during repertoire evolution.
 #'
-#' @format A data frame with 6 rows and 10 variables:
+#' @format A data frame with 49 rows and 2 variables:
 #' \describe{
 #'   \item{gene}{The gene name}
 #'   \item{seq}{The corresponding sequence}
@@ -193,7 +193,7 @@
 #' can give certain germline gene elements a larger probability of being used
 #' during repertoire evolution.
 #'
-#' @format A data frame with 6 rows and 10 variables:
+#' @format A data frame with 9 rows and 2 variables:
 #' \describe{
 #'   \item{gene}{The gene name}
 #'   \item{seq}{The corresponding sequence}
@@ -210,7 +210,7 @@
 #' can give certain germline gene elements a larger probability of being used
 #' during repertoire evolution.
 #'
-#' @format A data frame with 6 rows and 10 variables:
+#' @format A data frame with 12 rows and 2 variables:
 #' \describe{
 #'   \item{gene}{The gene name}
 #'   \item{seq}{The corresponding sequence}
@@ -227,7 +227,7 @@
 #' can give certain germline gene elements a larger probability of being used
 #' during repertoire evolution.
 #'
-#' @format A data frame with 6 rows and 10 variables:
+#' @format A data frame with 7 rows and 2 variables:
 #' \describe{
 #'   \item{gene}{The gene name}
 #'   \item{seq}{The corresponding sequence}
@@ -269,7 +269,7 @@
 #' by modifying this dataframe. Repeating particular hotspot entries allows
 #' for the hotspot to mutate more than one time per SHM event.
 #'
-#'  @format A data frame with 32 rows and 6 variables:
+#'  @format A data frame with 1024 rows and 6 variables:
 #' \describe{
 #'   \item{pattern}{Character array where each entry corresponds to a 5 base motif. The
 #'   mutation probabilities correspond to the middle nucleotide in each 5mer.}

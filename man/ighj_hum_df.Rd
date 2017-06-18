@@ -4,7 +4,7 @@
 \name{ighj_hum_df}
 \alias{ighj_hum_df}
 \title{ighj_hum_df}
-\format{A data frame with 6 rows and 10 variables:
+\format{A data frame with 6 rows and 2 variables:
 \describe{
   \item{gene}{The gene name}
   \item{seq}{The corresponding sequence}

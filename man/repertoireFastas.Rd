@@ -3,9 +3,10 @@
 \name{repertoireFastas}
 \alias{repertoireFastas}
 \title{Converts AbSim's output sequences and names into fasta file format. Each tree
-within the repertire will be stored in an individual fasta file}
+within the repertire will be stored in an individual fasta file. Utilizes
+sink() and cloneAllConnections() from R base}
 \usage{
-repertoireFastas(ab.repertoire, directory.string, fasta.name, with.germline)
+repertoireFastas(ab.repertoire, fasta.name, with.germline)
 }
 \arguments{
 \item{ab.repertoire}{The output from the either the singleLineage function or
@@ -14,8 +15,6 @@ element containing a list of sequence arrays, the second element containing the
 corresponding list of names, and the third element containing a list of trees.
 The following list elements (containing the sampling information) will be
 disregarded for repertoire expansion.}
-
-\item{directory.string}{A string specifying the directory where the fasta will be stored}
 
 \item{fasta.name}{The name of the fasta files. Each tree will be numbered
 corresponding to the index within the ab.repertoire list. For example,
@@ -26,12 +25,12 @@ should be included in the fasta file (as the first sequence)}
 }
 \description{
 Converts AbSim's output sequences and names into fasta file format. Each tree
-within the repertire will be stored in an individual fasta file
+within the repertire will be stored in an individual fasta file. Utilizes
+sink() and cloneAllConnections() from R base
 }
 \examples{
 \dontrun{
 repertoireFastas(ab.repertoire=ab.repertoire.output,
- directory.string="~/science",
  fasta.name="sample_trees",
  with.germline=TRUE
 }
