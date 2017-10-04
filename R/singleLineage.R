@@ -184,13 +184,13 @@ singleLineage <- function(max.seq.num,
   else if(SHM.branch.prob=="uniform"){
     new_SHM_prob <- stats::runif(n=max.seq.num,min=SHM.branch.param[1],max=SHM.branch.param[2])
   }
-  else if(SHM.branch.prob=="exponential"||"exp"){
+  else if(SHM.branch.prob=="exponential"|| SHM.branch.prob=="exp"){
     new_SHM_prob <- stats::rexp(n=max.seq.num,rate=SHM.branch.param)
   }
-  else if(SHM.branch.prob=="lognorm"|| "lognormal"){
+  else if(SHM.branch.prob=="lognorm"|| SHM.branch.prob=="lognormal"){
     new_SHM_prob <- stats::rlnorm(n=max.seq.num,meanlog = SHM.branch.param[1],sdlog = SHM.branch.param[2])
   }
-  else if(SHM.branch.prob=="normal"||"norm"){
+  else if(SHM.branch.prob=="normal"|| SHM.branch.prob=="norm"){
     new_SHM_prob <- stats::rnorm(n=max.seq.num,mean=SHM.branch.param[1],sd=SHM.branch.param[2])
   }
   sample_seq_list <- list()
