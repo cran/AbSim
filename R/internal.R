@@ -183,7 +183,7 @@
                                    d_seq,j_seq, SHM.nuc.prob){
 
   base_line_mutations <- 0
-  if(mut_param=="naive" || mut_param=="all"){
+  if(mut_param=="naive" || mut_param=="all" ||mut_param=="poisson"){
     holding_mut <- sample(x=c(0,1), nchar(vdj_seq), replace=TRUE,
                           c(SHM.nuc.prob[1], 1-SHM.nuc.prob[1]))
     for (i in 1:nchar(vdj_seq)){

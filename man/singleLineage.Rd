@@ -21,8 +21,8 @@ in the repertoire.}
 \item{max.timer}{The maximum number of time steps allowed during the simulation. The simulation
 will end when either this or the max.seq.num is reached.}
 
-\item{SHM.method}{The mode of SHM speciation events. Options are either: "poisson","data","motif","wrc", and "all". Specifying
-"poisson" will result in mutations that can occur anywhere in the heavy chain region, with each nucleotide having an equal probability
+\item{SHM.method}{The mode of SHM speciation events. Options are either: "poisson","data","motif","wrc", and "all". Specifying either
+"poisson" or "naive" will result in mutations that can occur anywhere in the heavy chain region, with each nucleotide having an equal probability
 for a mutation event. Specifying "data" focuses mutation events during SHM in the CDR regions (based on IMGT), and
 there will be an increased probability for transitions (and decreased probability for transversions). Specifying
 "motif" will cause neighbor dependent mutations based on a mutational matrix from high throughput sequencing
