@@ -251,14 +251,14 @@
         current_hot_spots <- current_hot_spots+1
       }
       if(current_hot_spots>hot_spot_limit) break
-      vdj_seq <- gsub(random_spot$pattern[i],replacement = paste(substring(random_spot$pattern[i],first=1,last=2),sample(x = c("A","C","G","T"),1,replace=TRUE,prob = c(100,0,0,0)),substring(random_spot$pattern[i],first=4,last=5),sep=""),x = vdj_seq)
+      vdj_seq <- base::sub(random_spot$pattern[i],replacement = paste(substring(random_spot$pattern[i],first=1,last=2),sample(x = c("A","C","G","T"),1,replace=TRUE,prob = c(random_spot$toA[i], random_spot$toC[i], random_spot$toG[i], random_spot$toT[i])),substring(random_spot$pattern[i],first=4,last=5),sep=""),x = vdj_seq)
 
     }
   }
   if(mut_param == "wrc" || mut_param == "all"){
     random_spot <- one_spot_df[sample(nrow(one_spot_df)),]
     current_hot_spots <- 0
-    if(mut_param=="motif") hot_spot_limit <- SHM.nuc.prob
+    if(mut_param=="wrc") hot_spot_limit <- SHM.nuc.prob
     else if(mut_param=="all") hot_spot_limit <- SHM.nuc.prob[4]
     #hot_spot_limit <- SHM.nuc.prob
     for(i in 1:nrow(random_spot)){
@@ -266,7 +266,7 @@
         current_hot_spots <- current_hot_spots+1
       }
       if(current_hot_spots>hot_spot_limit) break
-      vdj_seq <- gsub(random_spot$pattern[i],replacement = paste(substring(random_spot$pattern[i],first=1,last=2),sample(x = c("A","C","G","T"),1,replace=TRUE,prob = c(100,0,0,0)),substring(random_spot$pattern[i],first=4,last=5),sep=""),x = vdj_seq)
+      vdj_seq <- base::sub(random_spot$pattern[i],replacement = paste(substring(random_spot$pattern[i],first=1,last=2),sample(x = c("A","C","G","T"),1,replace=TRUE,prob = c(random_spot$toA[i], random_spot$toC[i], random_spot$toG[i], random_spot$toT[i])),substring(random_spot$pattern[i],first=4,last=5),sep=""),x = vdj_seq)
     }
   }
   return(vdj_seq)
@@ -317,3 +317,4 @@
   }
   return(output_string)
 }
+load
